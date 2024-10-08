@@ -1,8 +1,8 @@
 package org.serratec.doces;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,38 +12,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("/doces")
 public class DocesController {
-	List<Doces> doces = new ArrayList<>();
+	@Autowired
+	private DocesRepository repositorio;
+	
 	
 	@GetMapping
 	public List<Doces> obterTodos() {
-		return doces;
+		return repositorio.findAll();
+	}
+	
+	@GetMapping("/{id}")
+	public Doces obterPorId(@PathVariable Long id) {
+		return repositorio.findById(id).orElse(null);
 	}
 	
 	@PostMapping
 	public Doces cadastrarDoce(@RequestBody Doces doce) {
-		doces.add(doce);
-		return doce;
+		return repositorio.save(doce);
 	}
 	
-	@DeleteMapping("/{nome}")
-	public void excluirDoce(@PathVariable String nome) {
-		doces.removeIf(d -> d.getNome().equalsIgnoreCase(nome));
+	@DeleteMapping("/{id}")
+	public void excluirDoce(@PathVariable Long id) {
+		repositorio.deleteById(id);
 	}
 	
-	@PutMapping("/{nome}")
-	public Doces alterarDoce(@PathVariable String nome, @RequestBody Doces doce) {
-		for(int i=0; i < doces.size(); i++) {
-			if (doces.get(i).getNome().equalsIgnoreCase(nome)) {
-				doces.set(i, doce);
-				return doces.get(i);
-			}
+	@PutMapping("/{id}")
+	public Doces alterarDoce(@PathVariable Long id, @RequestBody Doces doce) {
+		if (repositorio.existsById(id)) {
+			doce.setId(id);
+			repositorio.save(doce);
+			return doce;
 		}
 		
 		return null;
 	}
-	
-
+		
 }
