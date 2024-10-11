@@ -1,5 +1,9 @@
 package org.serratec.veiculos;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,9 +12,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.util.List;
 
 @Entity
 public class Veiculo {
@@ -29,7 +35,24 @@ public class Veiculo {
 	private Proprietario proprietario;
 	@OneToMany(mappedBy = "veiculo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Acessorio> acessorios;
+	
+	@JsonManagedReference
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+		name = "concessionaria_veiculo",
+		joinColumns = @JoinColumn(name = "veiculo_id"), 
+		inverseJoinColumns = @JoinColumn(name = "concessionaria_id"))
+	private List<Concessionaria> concessionarias;
+	
 		
+	public List<Concessionaria> getConcessionarias() {
+		return concessionarias;
+	}
+	
+	public void setConcessionarias(List<Concessionaria> concessionarias) {
+		this.concessionarias = concessionarias;
+	}
+	
 	public List<Acessorio> getAcessorios() {
 		return acessorios;
 	}
