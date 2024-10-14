@@ -1,7 +1,10 @@
-package org.serratec.veiculos;
+package org.serratec.veiculos.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.serratec.veiculos.model.Veiculo;
+import org.serratec.veiculos.service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,50 +23,53 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/veiculos")
 public class VeiculoController {
-	@Autowired 
-	private VeiculoRepository repositorio;
+	@Autowired
+	private VeiculoService servico;
 	
 	@GetMapping
 	public List<Veiculo> obterTodos(){
-		return repositorio.findAll();
+		return servico.buscarTodos();
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Veiculo> obterPorId(@PathVariable Long id) {
-		if(!repositorio.existsById(id)) {
+		Optional<Veiculo> veiculo = servico.buscarPorId(id);
+		
+		if(!veiculo.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		return ResponseEntity.ok(repositorio.findById(id).get());
+		return ResponseEntity.ok(veiculo.get());
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Veiculo cadastrarVeiculo(@RequestBody @Valid Veiculo veiculo) {
-		return repositorio.save(veiculo);
-	
+		return servico.salvarVeiculo(veiculo);
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> excluirVeiculo(@PathVariable Long id) {
-		if(!repositorio.existsById(id)) {
+		if(!servico.apagarVeiculo(id)) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		repositorio.deleteById(id);
+		
 		return ResponseEntity.noContent().build();
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Veiculo> alterarVeiculo(@PathVariable Long id, 
 			@RequestBody @Valid Veiculo veiculo) {
-		if(!repositorio.existsById(id)) {
+		
+		Optional<Veiculo> veiculoAlterado = servico.modificarVeiculo(id, veiculo);
+		
+		if(!veiculoAlterado.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 			
-		veiculo.setId(id);
-		repositorio.save(veiculo);
-		return ResponseEntity.ok(veiculo);
+		
+		return ResponseEntity.ok(veiculoAlterado.get());
 	}
 	
 

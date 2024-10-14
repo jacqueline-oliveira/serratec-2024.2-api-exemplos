@@ -1,4 +1,4 @@
-package org.serratec.veiculos;
+package org.serratec.veiculos.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
